@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant browser
+    participant server
+
+    Note right of browser: User adds Note
+
+    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+    activate server
+    server-->>browser: HTTP status code 201
+    deactivate server
+
+    Note right of browser: No further HTTP requests occur and stay on the same page
