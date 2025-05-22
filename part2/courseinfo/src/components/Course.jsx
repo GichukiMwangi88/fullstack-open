@@ -1,7 +1,9 @@
-const Course = ({ course }) => {
-    //console.log(course.parts)
+const Course = (props) => {
+    const { course, exercises } = props
+    // console.log(course)
+    // console.log(exercises)
     return (
-        <li>{course}</li>
+        <li>{course} {exercises}</li>
     ) 
 }
 
