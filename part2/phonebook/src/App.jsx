@@ -84,6 +84,7 @@ const App = () => {
   ]) 
   //console.log(persons)
   const [filterName, setFilterName] = useState('')
+  console.log(filterName)
   const [newName, setNewName] = useState('')
   const [newPhone, setPhone] = useState('')
   //console.log(newPhone)
@@ -92,18 +93,20 @@ const App = () => {
   // const filterName = persons.find(person => person.name === 'Ada Lovelace')
   // console.log(filterName)
 
+
   const handleFilter = (event) => {
-    console.log(event.target.value)
-    const targetValue = event.target.value
-    console.log(persons.filter(person => person.name === targetValue))
-    setFilterName(targetValue)
+    //console.log(event.target.value)
+    //console.log(persons.filter(person => person.name === targetValue))
+    setFilterName(event.target.value)
     
   }
 
   // Names to display to user based on the filtered name
   const personsToDisplay = filterName 
-                           ? persons.filter(person => person.name === filterName) : persons
+                           ? persons.filter(person => person.name.toLowerCase().includes(filterName.toLowerCase())) 
+                           : persons
   console.log(personsToDisplay)
+  console.log(filterName)
 
   
 
@@ -172,17 +175,21 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <h3>Filter by Name</h3>
       <div>
-        filter shown with <input value={filterName} 
+        filter shown with <input value={filterName}
+                                 placeholder='search name..' 
                                  onChange={handleFilter}/>
       </div>
-      <h2>Add New Person and Phone number</h2>
+      <h2>Add a new contact</h2>
       <form onSubmit={addNewName}>
         <div>
-          name: <input value={newName} 
+          name: <input value={newName}
+                       placeholder='enter name..' 
                        onChange={handleNewNameChange}/>
         </div>
-        <div>number: <input value={newPhone} 
+        <div>number: <input value={newPhone}
+                            placeholder='enter phone number' 
                             onChange={handlePhoneNumber}/></div>
         <div>
           <button type="submit">add</button>
