@@ -1,6 +1,7 @@
 import { useState } from 'react'
-//import Note from './components/Note'
-
+import Persons from './components/Persons'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
 
 // const App = (props) => {
 //   //console.log(props) // stores an array of notes
@@ -174,32 +175,19 @@ const App = () => {
 
   return (
     <div>
+      
       <h2>Phonebook</h2>
       <h3>Filter by Name</h3>
       <div>
-        filter shown with <input value={filterName}
-                                 placeholder='search name..' 
-                                 onChange={handleFilter}/>
+        <Filter filterName={filterName} handleFilter={handleFilter} />
       </div>
-      <h2>Add a new contact</h2>
-      <form onSubmit={addNewName}>
-        <div>
-          name: <input value={newName}
-                       placeholder='enter name..' 
-                       onChange={handleNewNameChange}/>
-        </div>
-        <div>number: <input value={newPhone}
-                            placeholder='enter phone number' 
-                            onChange={handlePhoneNumber}/></div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
+      <h3>Add a new contact</h3>
+        <PersonForm name={newName} number={newPhone} 
+                  addContact={addNewName} handleName={handleNewNameChange}
+                  handlePhone={handlePhoneNumber} />
+      <h3>Numbers</h3>
       <ul>
-        {personsToDisplay.map(person => 
-          <li key={person.name}>{person.name}:{person.phone}</li>
-        )}
+        <Persons persons={persons} filterName={filterName} />
       </ul>
     </div>
   )
