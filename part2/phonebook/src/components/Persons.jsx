@@ -1,9 +1,10 @@
 import Person from './Person';
 import personService from '../services/person'
+import Notification from './Notification'
 
 const Persons = (props) => {
     console.log(props)
-    const { persons, filterName, setPersons } = props
+    const { persons, filterName, setPersons, setNotification } = props
     console.log(setPersons)
     // Filters the persons array, contains a list of only the list that contains the filterName
     const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filterName.toLowerCase()))
@@ -16,9 +17,13 @@ const Persons = (props) => {
                     personService
                         .deletePerson(id)
                         .then(response => {
-                            setPersons(persons.filter(person => person.id !== id))
+                            setPersons(persons.filter(person => person.id !== id)) // update the UI to only show persons not matching the deleted id
                             console.log(`Deleted person with ID ${id}`)
-                            alert(`${person.name} deleted.`)
+                            setNotification(`${person.name} deleted.`)
+                            setTimeout(() => {
+                                setNotification(null)
+                            }, 5000)
+                            //alert(`${person.name} deleted.`)
 
                         })
                         .catch(error => {

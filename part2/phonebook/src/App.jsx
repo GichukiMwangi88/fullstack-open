@@ -3,6 +3,8 @@ import personService from './services/person'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import person from './services/person'
+import Notification from './components/Notification'
 
 // Phone Book
 
@@ -12,6 +14,7 @@ const App = () => {
   console.log(filterName)
   const [newName, setNewName] = useState('')
   const [newPhone, setPhone] = useState('')
+  const [notification, setNotification] = useState('notification..')
 
   
 
@@ -69,6 +72,11 @@ const App = () => {
       .create(personObj)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        setNotification(
+          `Added ${personObj.name}`
+        )
+        setTimeout(() => {setNotification(null)}, 5000)
+        // alert(`${personObj.name} has been added to the phonebook`)
         setNewName('')
         setPhone('')
       })
@@ -87,7 +95,8 @@ const App = () => {
   return (
     <div>
       
-      <h2>Phonebook</h2>
+      <h2 className='heading'>Phonebook</h2>
+      <Notification message={notification} />
       <h3>Filter by Name</h3>
       <div>
         <Filter filterName={filterName} handleFilter={handleFilter} />
@@ -98,7 +107,8 @@ const App = () => {
                   handlePhone={handlePhoneNumber} />
       <h3>Numbers</h3>
       <ul>
-        <Persons persons={persons} filterName={filterName} setPersons={setPersons} />
+        <Persons persons={persons} filterName={filterName} setPersons={setPersons}
+                 setNotification={setNotification} />
       </ul>
     </div>
   )
