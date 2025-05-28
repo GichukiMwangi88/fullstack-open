@@ -1,0 +1,19 @@
+{
+  "persons": [
+    {
+      "id": "ed4a",
+      "name": "Robert Mwangi",
+      "number": "480-489-6309"
+    },
+    {
+      "id": "11e8",
+      "name": "Jane Doe",
+      "number": "456-456-7890"
+    },
+    {
+      "id": "61e1",
+      "name": "James John",
+      "number": "458-789-6303"
+    }
+  ]
+}
