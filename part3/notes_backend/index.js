@@ -2,7 +2,9 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 
-app.use(cors())
+app.use(cors()) // permits the frontend to communicate with the backend without CORS-related issues
+
+app.use(express.static('dist')) //serve the frontend via the backend
 
 // Notes
 let notes = [
