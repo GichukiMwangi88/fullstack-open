@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const cors = require('cors')
+
 
 let persons = [
     { 
@@ -26,6 +28,8 @@ let persons = [
 ]
 
 app.use(express.json())
+
+app.use(cors())
 
 // create a custom token for the POST request
 morgan.token('bodyName', (request, response) =>  {
@@ -106,8 +110,7 @@ app.delete('/api/notes/:id', (request, response) => {
   response.status(204).end()
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(generateId())
     console.log(`Server running on port ${PORT}`)
 })
