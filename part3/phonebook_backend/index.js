@@ -31,6 +31,8 @@ app.use(express.json())
 
 app.use(cors())
 
+app.use(express.static('dist'))
+
 // create a custom token for the POST request
 morgan.token('bodyName', (request, response) =>  {
     if(request.method === 'POST') {
@@ -103,7 +105,7 @@ app.post('/api/persons', (request, response) => {
 })
 
 // DELETE a single person entry based on their id
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   persons = persons.filter((person) => person.id !== id)
 
