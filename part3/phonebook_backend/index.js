@@ -7,42 +7,22 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 
-let persons = [
-    // { 
-    //   "id": "1",
-    //   "name": "Arto Hellas", 
-    //   "number": "040-123456"
-    // },
-    // { 
-    //   "id": "2",
-    //   "name": "Ada Lovelace", 
-    //   "number": "39-44-5323523"
-    // },
-    // { 
-    //   "id": "3",
-    //   "name": "Dan Abramov", 
-    //   "number": "12-43-234345"
-    // },
-    // { 
-    //   "id": "4",
-    //   "name": "Mary Poppendieck", 
-    //   "number": "39-23-6423122"
-    // }
-]
-
-
+let persons = []
 
 app.use(cors())
 
 app.use(express.static('dist'))
 
+// Middleware to parse JSON
 app.use(express.json())
 
 // create a custom token for the POST request
 morgan.token('bodyName', (request, response) =>  {
-    if(request.method === 'POST') {
+    const body = request.body
+    if(request.method === 'POST' && request.body && request.body.name && request.body.number) {
+        console.log(body)
         return JSON.stringify({ name: request.body.name, number: request.body.number })}
-    else {return ''}
+    return ' '
 })
 
 
@@ -60,8 +40,8 @@ app.get('/api/persons', (request, response) => {
   Person.find({}).then((persons) => {
     response.json(persons)
   })
+  })
   // response.json(persons)
-})
 
 // GET single person based on ID parameter
 app.get('/api/persons/:id', (request, response) => {
@@ -98,8 +78,8 @@ app.post('/api/persons', (request, response) => {
     number: body.number
   })
 
-  person.save().then((savedNote) => {
-    response.json(savedNote)
+  person.save().then((savedPerson) => {
+    response.json(savedPerson)
   })
 
   // let newId = generateId()
@@ -127,6 +107,7 @@ app.post('/api/persons', (request, response) => {
 // DELETE a single person entry based on their id
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
+  console.log(id)
   persons = persons.filter((person) => person.id !== id)
 
   response.status(204).end()
