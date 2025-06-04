@@ -1,29 +1,11 @@
+require('dotenv').config()
 const express = require('express')
+const Note = require('./models/note')
+
 const app = express()
-const cors = require('cors')
-
-app.use(cors()) // permits the frontend to communicate with the backend without CORS-related issues
-
-app.use(express.static('dist')) //serve the frontend via the backend
 
 // Notes
-let notes = [
-  {
-    id: "1",
-    content: "HTML is easy",
-    important: true
-  },
-  {
-    id: "2",
-    content: "Browser can execute only JavaScript",
-    important: false
-  },
-  {
-    id: "3",
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true
-  }
-]
+let notes = []
 
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
@@ -33,22 +15,34 @@ const requestLogger = (request, response, next) => {
     next()
 }
 
+app.use(requestLogger)
+app.use(express.static('dist')) //serve the frontend via the backend
 // activate json-parser
 app.use(express.json())
-
-app.use(requestLogger)
-
 
 
 // Post notes to the server
 
-const generateId = () => {
-    const maxId = notes.length > 0
-        ? Math.max(...notes.map(n => Number(n.id)))
-        : 0
-    return String(maxId + 1)
+// const generateId = () => {
+//     const maxId = notes.length > 0
+//         ? Math.max(...notes.map(n => Number(n.id)))
+//         : 0
+//     return String(maxId + 1)
 
-}
+// }
+
+app.get('/', (request,response) => {
+    response.send('<h1>Hello World</h1>')
+})
+
+// Fetch all notes
+app.get('/api/notes', (request,response) => {
+    Note.find({}).then(notes => {
+        response.json(notes)
+    })
+})
+
+// Create a new note
 app.post('/api/notes', (request,response) => {
     const body = request.body
 
@@ -58,37 +52,31 @@ app.post('/api/notes', (request,response) => {
         })
     }
     
-    const note = {
+    const note = new Note({
         content: body.content,
         important: body.important || false,
-        id: generateId()
-    }
 
-    notes = notes.concat(note)
-    console.log(note)
-    response.json(note)
+    }) 
+
+    note.save().then((savedNote) => {
+        response.json(savedNote)
+    })
+
 })
 
-
-app.get('/', (request,response) => {
-    response.send('<h1>Hello World</h1>')
-})
-
-app.get('/api/notes', (request,response) => {
-    response.json(notes)
-})
-
+// Fetch Note by ID
 app.get('/api/notes/:id', (request,response) => {
-    const id = request.params.id
-    const note = notes.find(note => note.id === id)
-    
-    // to ensure that if the id doesn't exist, a 404 status is returned
-    if(note) {
+    Note.findById(request.params.id).then((note) => {
         response.json(note)
-    } else {
-        response.statusMessage = `Note with ${id} doesn't exist`
-        response.status(404).end()
-    }
+    })
+    
+    // // to ensure that if the id doesn't exist, a 404 status is returned
+    // if(note) {
+    //     response.json(note)
+    // } else {
+    //     response.statusMessage = `Note with ${id} doesn't exist`
+    //     response.status(404).end()
+    // }
 })
 
 // deleting resources
@@ -108,7 +96,7 @@ app.use(unknownEndpoint)
 
 
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
