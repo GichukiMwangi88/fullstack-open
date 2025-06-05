@@ -7,6 +7,7 @@ const Persons = (props) => {
     const { persons, filterName, setPersons, setNotification } = props
     console.log(setPersons)
     // Filters the persons array, contains a list of only the list that contains the filterName
+    console.log(typeof persons)
     const personsToShow = persons.filter(person => person.name.toLowerCase().includes(filterName.toLowerCase()))
     // delete a person from the persons list
     const toggleDelete = id => {
