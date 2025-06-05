@@ -1,11 +1,11 @@
 const mongoose = require('mongoose')
-require('dotenv').config()
+require('dotenv').config() // allows us to be able to use the URI
 
 mongoose.set('strictQuery', false)
 
 const url = process.env.MONGODB_URI
 
-console.log(process.env.MONGODB_URI)
+
 
 console.log('connecting to', url)
 mongoose
@@ -17,11 +17,13 @@ mongoose
         console.log('error connecting to MongoDB:', error.message)
     })
 
+// Defines the structure of the Person object
 const personSchema = new mongoose.Schema({
     name: String,
     number: String
 })
 
+// Remove the version number from the Person object
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
         returnedObject.id = returnedObject._id.toString()
