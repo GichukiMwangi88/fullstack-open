@@ -69,6 +69,7 @@ const App = () => {
             console.log(updatedPerson)
             setPersons(persons.map(person => person.id !== existingPerson.id ? person : updatedPerson))
             setNotification(`Updated ${updatedPerson.name} telephone number.`)
+            setTimeout(() => {setNotification(null)}, 5000)
             setNewName('')
             setPhone('')
           })
