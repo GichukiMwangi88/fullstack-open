@@ -19,9 +19,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError')
   {
-    return response.status(400).send({ error: 'malformatted id'})
+    return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-    return response.status(400).send({ error: error.message})
+    return response.status(400).send({ error: error.message })
   }
 
   next(error)
@@ -35,11 +35,11 @@ app.use(cors())
 
 // create a custom token for the POST request
 morgan.token('bodyName', (request, response) =>  {
-    const body = request.body
-    if(request.method === 'POST' && request.body && request.body.name && request.body.number) {
-        console.log(body)
-        return JSON.stringify({ name: request.body.name, number: request.body.number })}
-    return ' '
+  const body = request.body
+  if(request.method === 'POST' && request.body && request.body.name && request.body.number) {
+    console.log(body)
+    return JSON.stringify({ name: request.body.name, number: request.body.number })}
+  return ' '
 })
 
 
@@ -57,8 +57,8 @@ app.get('/api/persons', (request, response) => {
   Person.find({}).then((persons) => {
     response.json(persons)
   })
-  })
-  // response.json(persons)
+})
+// response.json(persons)
 
 // GET single person based on ID parameter
 app.get('/api/persons/:id', (request, response) => {
@@ -69,7 +69,7 @@ app.get('/api/persons/:id', (request, response) => {
       } else {
         response.status(404).end()
       }
-    
+
     })
     .catch(error => next(error))
   // const id = request.params.id
@@ -105,7 +105,7 @@ app.post('/api/persons', (request, response, next) => {
   person.save().then((savedPerson) => {
     response.json(savedPerson)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 
   // let newId = generateId()
   // // Avoid duplicate ids
@@ -163,5 +163,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
