@@ -1,0 +1,12 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVsaUc4OSIsImlkIjoiNjg1MDUzMGFiMWE0ZWFkM2ZjNzBkNjM5IiwiaWF0IjoxNzUwMDk3OTc3fQ.dybxzW4YpMxEc2c05p1UzgNX-anp2EA7tbArKfMUpD8
+
+{
+
+    "title": "Testing refactoring authentication middleware",
+    "author": "John Doe",
+    "url": "http://test.test12.com",
+    "likes": 11,
+    "userId": "6850530ab1a4ead3fc70d639"
+}
