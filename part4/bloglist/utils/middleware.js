@@ -1,4 +1,7 @@
+require('express-async-errors')
 const logger = require('./logger')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
 
 const requestLogger = (request, response, next) => {
     logger.info('Method:', request.method)
@@ -40,8 +43,32 @@ const tokenExtractor = (request, response, next) => {
 
 }
 
+const userExtractor = async (request, response, next) => {
+  //console.log('Token: ',request.token) // debugging
+  let token
+  // error handling in case there's an error getting the token
+  try {
+    token = jwt.verify(request.token, process.env.SECRET)
+  } catch (error) {
+    return next(error)
+  }
+  
+
+  if(!token) {throw new Error('Invalid token')}
+
+  //console.log('Token: ', token.id)
+  const user = await User.findById(token.id)
+  //console.log('User: ', user.id)
+
+  request.user = user
+    
+  next()
+
+}
+
 
 module.exports = { requestLogger, 
                   unknownEndpoint, 
                   errorHandler, 
-                  tokenExtractor }
+                  tokenExtractor,
+                  userExtractor }

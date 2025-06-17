@@ -3,6 +3,7 @@ const Blog = require('../models/blog')
 const logger = require('../utils/logger')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { tokenExtractor, userExtractor } = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
     const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
@@ -10,21 +11,22 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', tokenExtractor, userExtractor,  async (request, response, next) => {
     const body = request.body
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    console.log('Token:', decodedToken.id)
+    const user = request.user
+    // const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    // console.log('Token:', decodedToken.id)
 
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: 'token invalid' })
-    }
+    // if (!decodedToken.id) {
+    //     return response.status(401).json({ error: 'token invalid' })
+    // }
 
-    const user = await User.findById(decodedToken.id)
-    console.log('User:', user)
+    // const user = await User.findById(decodedToken.id)
+    // console.log('User:', user)
 
-    if (!user) {
-        return response.status(400).json({ error: 'userId missing or not valid'})
-    }
+    // if (!user) {
+    //     return response.status(400).json({ error: 'userId missing or not valid'})
+    // }
 
     const blog = new Blog ({
         title: body.title,
@@ -41,9 +43,22 @@ blogsRouter.post('/', async (request, response, next) => {
 })
 
 // Delete a single blog post resource
-blogsRouter.delete('/:id', async (request, response) => {
-    await Blog.findByIdAndDelete(request.params.id)
-    console.log('Id to delete', request.params.id)
+blogsRouter.delete('/:id', tokenExtractor, userExtractor,  async (request, response) => {
+    const user = request.user
+    // const token = jwt.verify(request.token, process.env.SECRET)
+    console.log('User ID: ', user.id)
+    //console.log('Token Id: ', token.id)
+
+    const blog = await Blog.findById(request.params.id)
+    console.log('Blog user id: ', blog.user.toString())
+
+    if (blog.user.toString() === user.id)
+    {
+        await Blog.findByIdAndDelete(request.params.id)
+    }
+   
+    //await Blog.findByIdAndDelete(request.params.id)
+    //console.log('Id to delete', request.params.id)
     response.status(204).end()
 })
 
