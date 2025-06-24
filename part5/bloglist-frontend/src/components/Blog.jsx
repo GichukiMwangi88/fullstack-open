@@ -48,10 +48,10 @@ const Blog = ({ blog, handleLike, onRemove }) => {
         <li>Title: {title}</li>
         <li>Author: {author}</li>
         {details ? (
-          <>
+          <div className='moreDetails'>
             <li>Url: {url}</li>
             <li>Likes: {likes} <button onClick={increaseLikes}>like</button></li>
-          </>
+          </div>
         ) : null}
       </ul>
 
@@ -69,20 +69,27 @@ const Blog = ({ blog, handleLike, onRemove }) => {
   const label = details ? 'Hide' : 'View'
 
   const loggedUser = window.localStorage.getItem('loggedBlogappUser')
-  const user = JSON.parse(loggedUser)
+  //console.log('Logged user:', loggedUser)
+  const user = loggedUser ? JSON.parse(loggedUser) : null
+  //console.log('User name:', user.username)
 
   //console.log(user.username)
   // console.log(blog.user.username)
   const showRemoveButton = user.username === blog.user.username // allows only the one who added the blog to remove it
-
+  console.log(user.username)
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       {blogDetails} {handleLike} {onRemove}
-      <button onClick={toggleDetails}>{label}</button>
-      {showRemoveButton && (
-        <button onClick={handleRemove}>remove</button>
-      )}
+      <div className='showDetails'>
+        <button onClick={toggleDetails}>{label}</button>
+      </div>
+      <div>
+        {showRemoveButton && (
+          <button onClick={handleRemove}>remove</button>
+        )}
+      </div>
+
     </div>
   )
 
