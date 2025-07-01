@@ -64,4 +64,13 @@ export const sortAnecdotes = () => {
   }
 }
 
+// Vote action creator
+export const vote = (id) => {
+    console.log('vote', id)
+    return {
+      type: 'VOTE',
+      payload: { id }
+    }
+  }
+
 export default reducer
