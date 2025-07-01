@@ -37,6 +37,10 @@ const reducer = (state = initialState, action) => {
     case 'NEW_ANECDOTE': {
       return [...state, action.payload]
     }
+    case 'SORT_ANECDOTES': {
+      const sorted = [...state].sort((a,b) =>  a.votes - b.votes) // sorted ascending order
+      return sorted
+    }
     default: return state
   }
 
@@ -51,6 +55,12 @@ export const createAnecdote = (content) => {
       id: getId(),
       votes: 0
     }
+  }
+}
+
+export const sortAnecdotes = () => {
+  return {
+    type: 'SORT_ANECDOTES'
   }
 }
 
