@@ -14,12 +14,21 @@ const Anecdote = ({ anecdote, handleClick }) => {
     )
 }
 
-const Anecdotes = () => {
+const AnecdoteList = () => {
     const dispatch = useDispatch()
-    const anecdotes = useSelector(state => state)
+    
+    const anecdotes = useSelector(({filter, anecdotes})=> {
+        console.log('Anecdotes List:', anecdotes)
+        if (filter === '') {
+            return anecdotes
+        }
+        return filter !== ''
+         ? anecdotes.filter(a => a.content.toLowerCase().includes(filter.toLowerCase()))
+         : anecdotes
+    })
 
     return (
-        <ul>
+        <div>
             {anecdotes.map(anecdote => 
                 <Anecdote
                     key={anecdote.id}
@@ -31,10 +40,10 @@ const Anecdotes = () => {
                     }
                 />
             )}
-        </ul>
+        </div>
     )
 }
 
-export default Anecdotes
+export default AnecdoteList
 
 
