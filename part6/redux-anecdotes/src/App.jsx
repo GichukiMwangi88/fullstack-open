@@ -4,7 +4,6 @@ import AnecdoteForm from './components/AnecdoteForm'
 import Filter from './components/Filter'
 import Notification from './components/Notification'
 import { useDispatch } from 'react-redux'
-import anecdotes from './services/anecdotes'
 import { initializeAnecdotes } from './reducers/anecdoteReducer'
 
 const App = () => {

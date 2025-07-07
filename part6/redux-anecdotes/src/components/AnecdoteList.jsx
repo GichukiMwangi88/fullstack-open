@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useDispatch, useSelector } from "react-redux";
-import { sortAnecdotes, setVote } from "../reducers/anecdoteReducer"
-import { setNotification } from "../reducers/notificationReducer";
-import { clearNotification } from "../reducers/notificationReducer";
+import { sortAnecdotes } from "../reducers/anecdoteReducer"
+//import { setNotification } from "../reducers/notificationReducer";
+import { setNotifyWithTimeout } from '../reducers/notificationReducer'
+//import { clearNotification } from "../reducers/notificationReducer";
+import { voteAnecdote } from "../reducers/anecdoteReducer";
 
 const Anecdote = ({ anecdote, handleClick }) => {
     return (
@@ -33,14 +35,6 @@ const AnecdoteList = () => {
          : anecdotes
     })
 
-   const notify = ({ anecdote }) => {
-    console.log('Anecdote Content: ',anecdote.content)
-    dispatch(setNotification(`you voted '${anecdote.content}'`))
-
-    setTimeout(() => {dispatch(clearNotification())}, 5000)
-
-   }
-
     return (
         <div>
             {anecdotes.map(anecdote => 
@@ -48,10 +42,8 @@ const AnecdoteList = () => {
                     key={anecdote.id}
                     anecdote={anecdote}
                     handleClick={() => {
-                        dispatch(setVote(anecdote.id))
-                        notify({ anecdote })
-                        //dispatch(setNotification(`you voted '${anecdote.content}'`))
-                        //dispatch(clearNotification())
+                        dispatch(voteAnecdote(anecdote))
+                        dispatch(setNotifyWithTimeout(`you voted ${anecdote.content}`, 3))
                         dispatch(sortAnecdotes())
                     } 
                     }
