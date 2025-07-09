@@ -6,6 +6,9 @@ import {
   useParams, useNavigate
 } from 'react-router-dom'
 
+import { useField } from './hooks/index.js'
+
+
 const Menu = () => {
   const padding = {
     paddingRight: 5
@@ -18,18 +21,6 @@ const Menu = () => {
     </div>
   )
 }
-
-// const Notification = () => {
-//   const [notification, setNotification] = useState('')
-
-//   if(!notification) return null
-
-//   return (
-//     <div>
-//       {notification}
-//     </div>
-//   )
-// }
 
 const AnecdoteList = ({ anecdotes }) => {
   return (
@@ -79,9 +70,15 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  // const [content, setContent] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [info, setInfo] = useState('')
+  const content = useField('text')
+  console.log(content)
+  const author = useField('text')
+  console.log(author)
+  const info = useField('text')
+  console.log(info)
 
   const navigate = useNavigate()
 
@@ -89,33 +86,54 @@ const CreateNew = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     
     navigate('/')
   }
 
+  const resetField = () => {
+    //e.preventDefault()
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+
   return (
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
-        </div>
-        <div>
-          author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
-        </div>
-        <div>
-          url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
-        </div>
-        <button>create</button>
-      </form>
+      <div>
+        content:
+        <input 
+          {...content}
+        />
+      </div>
+      <div>
+        author:
+        <input 
+          {...author}
+        />
+      </div>
+      <div>
+        url for more info:
+        <input 
+          {...info}
+        />
+      </div>
+      <button>create</button>
+      <div>
+        <button type='reset' onClick={() => {
+          console.log('Reset clickedd')
+          resetField()}
+          }>reset
+        </button>
+      </div>
+      
+    </form>
     </div>
   )
 
