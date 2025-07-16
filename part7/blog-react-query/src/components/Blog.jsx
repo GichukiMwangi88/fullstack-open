@@ -75,8 +75,10 @@ const Blog = ({ blog, handleLike, onRemove }) => {
 
   //console.log(user.username)
   // console.log(blog.user.username)
-  const showRemoveButton = user ? user.username === blog.user.username : false // allows only the one who added the blog to remove it
-  //console.log(user.username)
+  const showRemoveButton = user && blog.user && blog.user.username
+    ? user.username === blog.user.username
+    : false // allows only the one who added the blog to remove it
+  //console.log('User name:',user.username)
   console.log('Blog user:', blog.user.username)
 
   return (

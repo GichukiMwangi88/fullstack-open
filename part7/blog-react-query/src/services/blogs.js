@@ -25,7 +25,9 @@ const put = async (blogObject) => {
   //const blogId = blogObject.id
   console.log('Debugging PUT')
   console.log('Blog Details: ', blogObject)
+  console.log('Blog Likes:', blogObject.likes)
   const { title, author, url, likes, id } = blogObject
+
 
   const updatedBlog = {
     title: title,
@@ -34,7 +36,8 @@ const put = async (blogObject) => {
     likes: likes
   }
 
-  const response = await axios.put(`${baseUrl}/${id}`, updatedBlog)
+  const response = await axios.put(`${baseUrl}/${blogObject.id}`, updatedBlog)
+  console.log('Updated Blog:', updatedBlog.likes)
   return response.data
 }
 

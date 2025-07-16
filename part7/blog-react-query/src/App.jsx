@@ -1,127 +1,192 @@
 import { useState, useEffect, useContext } from 'react'
 import Blog from './components/Blog'
+import UserDetail from './components/UserDetail'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import NotificationContext from './components/NotificationContext'
+import LoginContext from './components/LoginContext'
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
+
+import {
+  BrowserRouter as Router,
+  Routes, Route, Link
+} from 'react-router-dom'
+
 
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  //const [sortedBlogs, setSortedBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
-  //const [notification, setNotification] = useState({ message: null, type: null })
   const [blogEntryVisible, setBlogEntryVisible] = useState(false)
 
+
+  // Manage notifications
   const [notification, dispatch] = useContext(NotificationContext)
   console.log('Notification:', notification)
 
 
+  // Login initial state
+  const initialState = {
+    user: null, // stores the user data once logged in
+    token: null, // stores auth token
+    error: null, // stores login error messages
+  }
+
+  console.log('Initial State:', initialState)
+
+  const [login, loginDispatch] = useContext(LoginContext)
+  console.log('Login User:', login.user)
+  const user = login.user
+  //console.log('Name of logged in user:', user.name)
 
 
-  useEffect(() => {
-    blogService.getAll().then(initialBlogs =>
-      //console.log('Blogs:', initialBlogs)
-      setBlogs(initialBlogs)
-    )
-  }, [])
+  // Fetch blogs from the server
+  const result = useQuery({
+    queryKey: ['blogs'],
+    queryFn: () =>
+      axios.get('/api/blogs').then(res => res.data),
+    retry: 1
+  })
 
-  blogs.sort((a,b) => a.likes - b.likes) // sort the blogs ascending by number of likes
-  // console.log(blogs)
+  console.log(JSON.parse(JSON.stringify(result)))
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+  console.log('Result:', result)
+
+  const blogs = result.data
+
+  const queryClient = useQueryClient()
+
+  // New Blog Mutation
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (blog) => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] }) // fetch fresh data from the backend where the user is already populated
+      const blogs = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(['blogs'], blogs.concat(blog))
+      dispatch({ type: 'SUCCESS',
+        payload: `a new blog ${blog.title} by ${blog.author} added`
+      })
+      setTimeout(() => {
+        dispatch({ type: 'CLEAR' })
+      }, 5000)
+    },
+    onError: (error) => {
+      dispatch({ type: 'ERROR', payload: 'Failed to add blog' })
     }
-  }, [])
+  })
 
-  // Sort blogs based on the number of likes
-  // console.log('Blogs:', blogs)
-  // const sortBlogs = (blogs) => {
-  //   blogs.sort((a,b) => a.likes - b.likes)
-  //   setSortedBlogs(blogs)
-  // }
-  //sortBlogs(blogs)
+  // Update Blog Mutation
+  const updateBlogMutation = useMutation({
+    mutationFn: blogService.put, // calls the put service to send the updated blog data
+    onSuccess: (data) => { // data is the blog to be updated, ie the number of likes
+      queryClient.invalidateQueries({ queryKey: ['blogs'] }) // fetch fresh data from the backend
+      // where the user is already populated
+      console.log('Data:', data) // Debug
 
-  const addBlog = (blogObject) => {
-    blogService
-      .create(blogObject)
-      .then(returnedBlog => {
-        console.log('Returned Blog:', returnedBlog)
-        returnedBlog.user = user
-        setBlogs(blogs.concat(returnedBlog))
-        setBlogEntryVisible(false)
-        //console.log('Blog Entry Visibility: ',blogEntryVisible)
-        dispatch({ type: 'SUCCESS',
-          payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
-        })
-        setTimeout(() => {
-          dispatch({ type: 'CLEAR' })
-        }, 5000)
-
-      })
-      .catch(error => {
-        dispatch({ payload: 'Error adding blog', type: 'ERROR' })
-        setTimeout(() => {
-          dispatch({ type: 'CLEAR' })
-        }, 5000)
-      })
-  }
-
-  const updateBlog = (blogObject) => {
-    blogService
-      .put(blogObject)
-      .then(returnedBlog => {
-        console.log('Returned Blog: ', returnedBlog)
-        const updatedBlogs = blogs.map(blog => {
-          if(blog.id === returnedBlog.id)
-          {
-            return returnedBlog
-          }
-          return blog
+      const blogs = queryClient.getQueryData(['blogs']) // get the current array of blogs
+      console.log('Blogs:', blogs)
+      // Create a new array, updatedBlogs, iterating over the cached blogs
+      // for each blog, if its id matches the updated blog's id, replace it with the updated blog(data)
+      // Else, keep the blog as is
+      const updatedBlogs = blogs.map(blog => {
+        if (blog.id === data.id) {
+          return data
         }
+        return blog
+      }
 
-        )
+      )
+      // Set the new cache with setQueryData to update cache with the new array
+      queryClient.setQueryData(['blogs'], updatedBlogs)
+    },
+    onError: (error) => {
+      dispatch({ type: 'ERROR', payload: 'Failed to like blog' })
+    }
+  })
 
-        setBlogs(updatedBlogs)
+  // Delete Blog Mutation
+  const deleteBlogMutation = useMutation({
+    mutationFn: blogService.deleteBlog,
+    onSuccess: (_data, id) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(['blogs'], blogs.filter(blog => blog.id !== id) )
+      dispatch({ type: 'SUCCESS',
+        payload: 'Blog delete successfully'
       })
-      .catch(error => {
-        dispatch({ payload: 'Error increasing likes', type: 'ERROR' })
-        setTimeout(() => {
-          dispatch({ type: 'CLEAR' })
-        }, 5000)
-      })
+      setTimeout(() => {
+        dispatch({ type: 'CLEAR' })
+      }, 5000)
+    },
+    onError: (error) => {
+      dispatch({ type: 'ERROR', payload: 'Failed to remove blog' })
+    }
+  })
+
+  if (result.isLoading) {
+    return <div>Loading data...</div>
   }
 
-  //Remove blog based on logged in user
-  const removeBlog = (blogObject) => {
-    //console.log('Logged in user:', user.username)
-    // blogs.forEach(blog => {
-    //   console.log(blog.user.username)
-    // })
-    // const updatedBlogs = blogs.filter(blog => blog.user.username !== user.username)
-    // console.log('Updated Blogs:', updatedBlogs)
-    console.log('Blog ID:', blogObject)
-    blogService
-      .deleteBlog(blogObject)
-      .then(response => {
-        //console.log(response.data)
-        const updatedBlogs = blogs.filter(blog => blog.id !== blogObject)
-        setBlogs(updatedBlogs)
-      })
-      .catch(error => {
-        dispatch({ payload: 'Error deleting blog', type: 'ERROR' })
-        setTimeout(() => {
-          dispatch({ type: 'CLEAR' })
-        }, 5000)
-      })
+  // Sort blogs by the number of likes
+  blogs.sort((a,b) => a.likes - b.likes) // sort the blogs ascending by number of likes
 
+  blogs.forEach(blog => {
+    console.log('Blog user id:', blog)
+  })
+
+  /* Get the number of blogs created by each user:
+    1.Create a variable that stores the result of the reduce function —
+    this will be an object mapping each user to the number of blogs they've created, e.g. { 'Jane Doe': 1 }.
+    2.Call the reduce function on the blogs array,
+    using an empty object {} as the initial accumulator.
+    3.Extract the username from each blog object and store it in a variable called username.
+    4.Iterate through each blog, and for every blog entry, use the username as a key in the accumulator object.
+    5.If the username already exists in the accumulator, increment its value by 1.
+    If it's the first time the username appears, set the value to 1.
+    6.Return the accumulator at the end of the reduce call —
+    this final object will contain the total blog counts per user.
+  */
+
+  const userBlogCounts = blogs.reduce((acc, blog) => {
+    const name = blog.user.name // extract the name we'll use in the acc object
+    console.log('Blog user:',name)
+    const userId = blog.user.id
+    console.log('Blog user id:', userId)
+    if (acc[userId]) { // check if the userId exists, increase the blog count
+      acc[userId].blogCount += 1
+    }
+    else { // if first time encountering the userId, create an object with name and blogCount as keys
+      // and initialize blogCount to 1
+      acc[userId] = {
+        name: name,
+        blogCount: 1
+      }
+    }
+    return acc
+  }, {})
+
+  console.log('Blog counts:', userBlogCounts)
+
+  // Tranform the userBlogCounts into an array for display
+  const userList = Object.entries(userBlogCounts)
+  console.log('User List Data type:', Array.isArray(userList)) //--> returns true indicating its an array
+
+  const addBlog = async (blogObject) => {
+    newBlogMutation.mutate({ ...blogObject, Likes: 0 })
+  }
+
+  const removeBlog = (id) => {
+    console.log('Deleted blog id:', id)
+    deleteBlogMutation.mutate(id)
+  }
+
+  const updateBlog = async (blogObject) => {
+    console.log('Blog to update:', blogObject)
+    console.log('Blog id:', blogObject.id)
+    updateBlogMutation.mutate({ ...blogObject })
   }
 
   const handleLogin = async (event) => {
@@ -130,6 +195,13 @@ const App = () => {
     try {
       const user = await loginService.login({
         username, password,
+      })
+      loginDispatch({
+        type: 'Login_Success',
+        payload: {
+          user: user,
+          token: user.token
+        }
       })
 
       window.localStorage.setItem(
@@ -145,11 +217,16 @@ const App = () => {
 
       }, 5000)
 
-      setUser(user)
       setUsername('')
       setPassword('')
 
     } catch (exception) {
+      loginDispatch({
+        type: 'Login_Failure',
+        payload: {
+          error: 'Wrong username or password'
+        }
+      })
       dispatch({ payload: 'Wrong username or password', type: 'ERROR' })
       setTimeout(() => {
         dispatch({ type: 'CLEAR' })
@@ -162,10 +239,16 @@ const App = () => {
   const handleLogout = async (event) => {
     event.preventDefault()
     window.localStorage.removeItem('loggedBlogappUser')
-    //setNotification({ message: `${username} logged in successfully`, type: 'success' })
-    setUser(null)
+
+    loginDispatch({ type: 'Logout' })
     setUsername('')
     setPassword('')
+
+    // Notify user they have logged out successfully
+    dispatch({ type: 'SUCCESS', payload: 'Logged out successfully' })
+    setTimeout(() => {
+      dispatch({ type: 'CLEAR' })
+    }, 5000)
 
 
     console.log('Logged out', username)
@@ -213,6 +296,8 @@ const App = () => {
     )
   }
 
+
+
   return (
     <div>
       <h2>Blog App</h2>
@@ -242,6 +327,34 @@ const App = () => {
             />
           )}
         </ul>
+      </div>
+      <div>
+        <Routes>
+          <Route path='/users' element={
+            <div>
+              <h2>Users</h2><table>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>blogs created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userList.map(([id, { name, blogCount }]) => (
+                    <tr key={id}>
+                      <td>
+                        <Link to={`/users/${id}`}>{name}</Link>
+                      </td>
+                      <td>{blogCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          } />
+          <Route path='/users/:id' element={<UserDetail blogs={blogs} />} />
+        </Routes>
+
       </div>
     </div>
   )
