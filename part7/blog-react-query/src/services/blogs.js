@@ -53,7 +53,22 @@ const deleteBlog = async (id) => {
 
 }
 
+// Adding comments to blogs
+const addComment = async (id, text) => {
+  console.log('Debugging adding comments')
+
+  const commentObj = {
+    comment: text
+  }
+
+  console.log('Comment object:', commentObj)
+
+  const response = await axios.post(`${baseUrl}/${id}/comments`, commentObj)
+  return response.data
+}
 
 
 
-export default { getAll, create, put, setToken, deleteBlog }
+
+
+export default { getAll, create, put, setToken, deleteBlog, addComment }

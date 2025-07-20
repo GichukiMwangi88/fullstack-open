@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import NotificationContext from './NotificationContext'
+import { Alert } from '@mui/material'
 
 const Notification = () => {
   const style = {
@@ -14,9 +15,12 @@ const Notification = () => {
   if(!notification) return null
 
   return (
-    <div style={style}>
+    // <div style={style}>
+    //   {notification.message}
+    // </div>
+    <Alert severity='success'>
       {notification.message}
-    </div>
+    </Alert>
   )
 }
 

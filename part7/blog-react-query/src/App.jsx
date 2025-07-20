@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react'
 import Blog from './components/Blog'
 import UserDetail from './components/UserDetail'
+import BlogDetail from './components/BlogDetail'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
@@ -10,6 +11,11 @@ import LoginContext from './components/LoginContext'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+
+import { Container, TextField, Button, AppBar,
+  Toolbar, ButtonGroup, Typography,
+  TableContainer, Table, TableBody, TableHead, TableRow,
+  TableCell, Paper } from '@mui/material'
 
 import {
   BrowserRouter as Router,
@@ -36,10 +42,10 @@ const App = () => {
     error: null, // stores login error messages
   }
 
-  console.log('Initial State:', initialState)
+  //console.log('Initial State:', initialState)
 
   const [login, loginDispatch] = useContext(LoginContext)
-  console.log('Login User:', login.user)
+  //console.log('Login User:', login.user)
   const user = login.user
   //console.log('Name of logged in user:', user.name)
 
@@ -54,7 +60,7 @@ const App = () => {
 
   console.log(JSON.parse(JSON.stringify(result)))
 
-  console.log('Result:', result)
+  //console.log('Result:', result)
 
   const blogs = result.data
 
@@ -85,10 +91,10 @@ const App = () => {
     onSuccess: (data) => { // data is the blog to be updated, ie the number of likes
       queryClient.invalidateQueries({ queryKey: ['blogs'] }) // fetch fresh data from the backend
       // where the user is already populated
-      console.log('Data:', data) // Debug
+      //console.log('Data:', data) // Debug
 
       const blogs = queryClient.getQueryData(['blogs']) // get the current array of blogs
-      console.log('Blogs:', blogs)
+      //console.log('Blogs:', blogs)
       // Create a new array, updatedBlogs, iterating over the cached blogs
       // for each blog, if its id matches the updated blog's id, replace it with the updated blog(data)
       // Else, keep the blog as is
@@ -133,9 +139,9 @@ const App = () => {
   // Sort blogs by the number of likes
   blogs.sort((a,b) => a.likes - b.likes) // sort the blogs ascending by number of likes
 
-  blogs.forEach(blog => {
-    console.log('Blog user id:', blog)
-  })
+  // blogs.forEach(blog => {
+  //   //console.log('Blog user id:', blog)
+  // })
 
   /* Get the number of blogs created by each user:
     1.Create a variable that stores the result of the reduce function —
@@ -152,9 +158,9 @@ const App = () => {
 
   const userBlogCounts = blogs.reduce((acc, blog) => {
     const name = blog.user.name // extract the name we'll use in the acc object
-    console.log('Blog user:',name)
+    //console.log('Blog user:',name)
     const userId = blog.user.id
-    console.log('Blog user id:', userId)
+    //console.log('Blog user id:', userId)
     if (acc[userId]) { // check if the userId exists, increase the blog count
       acc[userId].blogCount += 1
     }
@@ -168,24 +174,24 @@ const App = () => {
     return acc
   }, {})
 
-  console.log('Blog counts:', userBlogCounts)
+  //console.log('Blog counts:', userBlogCounts)
 
   // Tranform the userBlogCounts into an array for display
   const userList = Object.entries(userBlogCounts)
-  console.log('User List Data type:', Array.isArray(userList)) //--> returns true indicating its an array
+  //console.log('User List Data type:', Array.isArray(userList)) //--> returns true indicating its an array
 
   const addBlog = async (blogObject) => {
     newBlogMutation.mutate({ ...blogObject, Likes: 0 })
   }
 
   const removeBlog = (id) => {
-    console.log('Deleted blog id:', id)
+    //console.log('Deleted blog id:', id)
     deleteBlogMutation.mutate(id)
   }
 
   const updateBlog = async (blogObject) => {
-    console.log('Blog to update:', blogObject)
-    console.log('Blog id:', blogObject.id)
+    //console.log('Blog to update:', blogObject)
+    //console.log('Blog id:', blogObject.id)
     updateBlogMutation.mutate({ ...blogObject })
   }
 
@@ -257,24 +263,28 @@ const App = () => {
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <div>
-        username
-        <input
+        <TextField
+          label="username"
           type="text"
           value={username}
           name="Username"
           onChange={({ target }) => setUsername(target.value)}
+          margin='normal'
         />
       </div>
       <div>
-        password
-        <input
+        <TextField
+          label="password"
           type="password"
           value={password}
           name="Password"
           onChange={({ target }) => setPassword(target.value)}
         />
       </div>
-      <button type="submit">login</button>
+      <Button type="submit"
+        variant='contained' color='primary'>
+        login
+      </Button>
     </form>
   )
 
@@ -285,78 +295,115 @@ const App = () => {
     return (
       <div>
         <div style={hideWhenVisible}>
-          <button onClick={() => setBlogEntryVisible(true)}>Create blog entry</button>
+          <Button onClick={() => setBlogEntryVisible(true)}
+            variant='outlined'>
+            Create blog
+          </Button>
         </div>
         <div style={showWhenVisible}>
           <BlogForm createBlog={addBlog}/>
-          <button onClick={() => setBlogEntryVisible(false)}>Cancel</button>
+          <Button onClick={() => setBlogEntryVisible(false)}
+            variant='contained'>
+              Cancel
+          </Button>
         </div>
+
       </div>
 
     )
   }
 
+  const padding = {
+    padding: 5
+  }
+
 
 
   return (
-    <div>
-      <h2>Blog App</h2>
-      <Notification />
-
-      {user === null ?
-        <div>
-          <h3>Login to application</h3>
-          {loginForm()}
-        </div>
-        :
-        <div>
-          <p>{user.name} logged in</p>
-          <button onClick={handleLogout}>Logout</button>
-          {blogForm()}
-        </div>
-      }
-      <div className='blogs'>
-        <h3>Blogs</h3>
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          {blogs.map(blog =>
-            <Blog
-              key={blog.id}
-              blog={blog}
-              handleLike={updateBlog}
-              onRemove={removeBlog}
-            />
-          )}
-        </ul>
-      </div>
+    <Container>
       <div>
+        <AppBar position='static'>
+          <Toolbar>
+            <div className='navbar'>
+              <Button color='inherit' component={Link} to='/blogs'>blogs</Button>
+              <Button color='inherit' component={Link} to='/users'>users</Button>
+              {user &&
+          <>
+            <span>{user.name} logged in</span>
+            <Button onClick={handleLogout} color='inherit'>Logout</Button>
+          </>}
+            </div>
+          </Toolbar>
+        </AppBar>
+        <Typography level='h1'
+          sx={{ mt: 2, fontWeight: 'bold', fontSize: '1.25rem' }}>
+            Blog App
+        </Typography>
+        <Notification />
+        {user === null ?
+          <div>
+            <h3>Login to application</h3>
+            {loginForm()}
+          </div>
+          :
+          <>
+            <div style={{ marginTop: '1rem' }}>
+              {blogForm()}
+            </div>
+          </>
+        }
+
         <Routes>
+          <Route path='/blogs/:id' element={<BlogDetail blogs={blogs}
+            handleLike={updateBlog} onRemove={removeBlog} />} />
+          <Route path='/blogs' element={
+            <div>
+              <div className='blogs'>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  {blogs.map(blog => <Blog
+                    key={blog.id}
+                    blog={blog}
+                    handleLike={updateBlog}
+                    onRemove={removeBlog}
+                    detailed={false} />
+                  )}
+                </ul>
+              </div>
+            </div>
+
+          } />
           <Route path='/users' element={
             <div>
-              <h2>Users</h2><table>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>blogs created</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userList.map(([id, { name, blogCount }]) => (
-                    <tr key={id}>
-                      <td>
-                        <Link to={`/users/${id}`}>{name}</Link>
-                      </td>
-                      <td>{blogCount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Typography sx={{ fontFamily: 'Verdana', fontSize: '1rem', fontWeight: 'Bold' }}>
+                Users
+              </Typography>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableCell>Users</TableCell>
+                    <TableCell>blogs created</TableCell>
+                  </TableHead>
+                  <TableBody>
+                    {userList.map(([id, { name, blogCount }]) => (
+                      <TableRow key={id}>
+                        <TableCell>
+                          <Link to={`/users/${id}`}>{name}</Link>
+                        </TableCell>
+                        <TableCell>{blogCount}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+              </TableContainer>
+
             </div>
           } />
           <Route path='/users/:id' element={<UserDetail blogs={blogs} />} />
         </Routes>
-
       </div>
-    </div>
+    </Container>
+
   )
 }
 
