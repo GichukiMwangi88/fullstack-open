@@ -1,0 +1,42 @@
+{
+  "notes": [
+    {
+      "id": "1",
+      "content": "custom-hooks are awesome!"
+    },
+    {
+      "id": "2",
+      "content": "best feature ever <3"
+    },
+    {
+      "id": "2525",
+      "content": "Testing"
+    },
+    {
+      "id": "a268",
+      "content": "Nites"
+    }
+  ],
+  "persons": [
+    {
+      "id": "1",
+      "name": "mluukkai",
+      "number": "040-5483923"
+    },
+    {
+      "id": "2",
+      "name": "hellas",
+      "number": "012-123123"
+    },
+    {
+      "id": "1641",
+      "name": "Robert Mwangi",
+      "number": "7807899630"
+    },
+    {
+      "id": "14ea",
+      "name": "Jane Doe",
+      "number": "123-456-8969"
+    }
+  ]
+}

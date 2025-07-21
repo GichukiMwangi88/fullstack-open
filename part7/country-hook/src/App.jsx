@@ -37,7 +37,7 @@ const useCountry = (name) => {
         setCountry({ data: null, found: false })
       })
 
-      }, [name])
+      }, [name]) // the effect won't run unless the name variable changes
 
   
   console.log('Country object: ',country)
