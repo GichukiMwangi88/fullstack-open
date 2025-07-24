@@ -13,9 +13,11 @@ const App = () => {
 
   const resultBooks = useQuery(ALL_BOOKS)
 
+  console.log('Authors data:', result.data)
+
   console.log('Books data:', resultBooks.data)
 
-  if (result.loading) {
+  if (result.loading || resultBooks.loading) {
     return <div>Loading...</div>
   }
 

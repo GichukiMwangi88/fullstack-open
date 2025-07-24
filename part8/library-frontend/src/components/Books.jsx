@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 const Books = (props) => {
   const { show, books } = props
   if (!show) {

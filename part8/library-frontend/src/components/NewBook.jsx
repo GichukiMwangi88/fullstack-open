@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react'
 
 import { CREATE_BOOK, ALL_BOOKS } from '../queries'

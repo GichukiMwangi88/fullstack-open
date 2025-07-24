@@ -37,3 +37,31 @@ export const CREATE_BOOK = gql `
             }
 
 `
+
+export const SET_BIRTHYEAR = gql `
+    mutation setBirthYear($name: String!, $setBornTo: Int!)
+        {
+            editAuthor(name: $name, 
+                setBornTo: $setBornTo)
+                {
+                    name,
+                    born
+                }
+        }
+`
+
+/*
+Client Side
+  |
+  |---> mutation setBirthYear($name: String!, $setBornTo: Int!)
+             |
+             |---> calls `editAuthor` on backend with provided variables
+                          |
+                          |---> Backend executes resolver logic (e.g., updates DB)
+                                      |
+                                      |---> returns updated author data
+                                                 |
+                                                 |---> Client receives `name` and `born`
+
+*/
+

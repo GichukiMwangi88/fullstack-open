@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+import BirthYearForm from "./BirthYearForm"
 
 const Authors = (props) => {
   const { show, authors } = props
@@ -24,6 +26,7 @@ const Authors = (props) => {
           ))}
         </tbody>
       </table>
+      <BirthYearForm />
     </div>
   )
 }
